@@ -86,7 +86,7 @@ myHttp.get(
 
 function getPost(id) {
     return new Promise((resolve, reject) => {
-        myHttp.get('https://jsonplaceholder.typicode.com/posts/1', (err, res) => {
+        myHttp.get(`https://jsonplaceholder.typicode.com/posts/${id}`, (err, res) => {
             if (err) {
                 reject(err)
             }
@@ -95,20 +95,40 @@ function getPost(id) {
     })
 }
 
-function getPostComments() {
+function getPostComments(post) {
+    const {id} = post
     return new Promise((resolve, reject) => {
-        myHttp.get('https://jsonplaceholder.typicode.com/comments?postId=1', (err, res) => {
+        myHttp.get(`https://jsonplaceholder.typicode.com/comments?postId=${id}`, (err, res) => {
             if (err) {
                 reject(err)
             }
-            resolve(res)
+            resolve({post, comments: res})
         })
     })
 }
 
-function getUserCreatedPost() {
+function getUserCreatedPost(data) {
+    const {post: {userId}, } = data
     return new Promise((resolve, reject) => {
-        myHttp.get('https://jsonplaceholder.typicode.com/users/1', (err, res) => {
+        myHttp.get(`https://jsonplaceholder.typicode.com/users/${userId}`, (err, res) => {
+            if (err) {
+                reject(err)
+            }
+            resolve({...data, user: res})
+        })
+    })
+}
+
+// getPost(50)
+// .then(post => getPostComments(post))
+// .then(data => getUserCreatedPost(data))
+// .then(user => console.log(user))
+// .catch(err => console.log(err))
+// .finally(() => console.log('finaly'))
+
+function getPost2(id) {
+    return new Promise((resolve, reject) => {
+        myHttp.get(`https://jsonplaceholder.typicode.com/posts/${id}`, (err, res) => {
             if (err) {
                 reject(err)
             }
@@ -117,8 +137,31 @@ function getUserCreatedPost() {
     })
 }
 
-getPost()
-.then(post => getPostComments())
-.then(comments => getUserCreatedPost)
-.then(user => console.log(user))
+function getPostComments2(id) {
+    return new Promise((resolve, reject) => {
+        myHttp.get(`https://jsonplaceholder.typicode.com/comments?postId=${id}`, (err, res) => {
+            if (err) {
+                reject(err)
+            }
+            resolve(res)
+        })
+    })
+}
+
+function getUserCreatedPost2(userId) {
+    return new Promise((resolve, reject) => {
+        myHttp.get(`https://jsonplaceholder.typicode.com/users/${userId}`, (err, res) => {
+            if (err) {
+                reject(err)
+            }
+            resolve(res)
+        })
+    })
+}
+
+Promise.all([
+    getPost2(1),
+    getPostComments2(1),
+    getUserCreatedPost2(1)
+]).then(([post, comments, user]) => console.log(post, comments, user))
 .catch(err => console.log(err))
